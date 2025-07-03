@@ -98,6 +98,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12 5.25a.75.75 0 01.75.75v5.25H18a.75.75 0 010 1.5h-5.25V18a.75.75 0 01-1.5 0v-5.25H6a.75.75 0 010-1.5h5.25V6a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg>
                         Add New Member
                     </button>
+                    <button id="addJsonBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 mt-4 sm:mt-0 transition-all duration-200 transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h10v2H4z"/></svg>
+                        Add via JSON
+                    </button>
                 </header>
 
                 <!-- Members Table -->
@@ -161,6 +165,21 @@
         </div>
     </div>
 
+    <!-- Add via JSON Modal -->
+    <div id="jsonModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 opacity-0 pointer-events-none">
+        <div class="modal-content glass-card w-full max-w-lg p-8 rounded-2xl transform scale-95">
+            <h2 class="text-2xl font-bold text-white mb-6">Add Members via JSON</h2>
+            <form id="jsonForm" class="space-y-4">
+                <textarea id="jsonInput" rows="8" placeholder='Paste JSON array or object here' class="w-full bg-slate-800/60 rounded-md border-0 py-2.5 px-4 text-white focus:ring-2 focus:ring-primary-DEFAULT"></textarea>
+                <div id="jsonError" class="text-red-400 text-sm"></div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" class="close-modal-btn px-6 py-2 rounded-lg text-white bg-slate-700 hover:bg-slate-600 transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">Add Members</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_URL = 'http://localhost:5000/api/ambassadors';
@@ -176,6 +195,11 @@
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             const searchInput = document.getElementById('search');
             const tableBody = document.querySelector('tbody');
+            const addJsonBtn = document.getElementById('addJsonBtn');
+            const jsonModal = document.getElementById('jsonModal');
+            const jsonForm = document.getElementById('jsonForm');
+            const jsonInput = document.getElementById('jsonInput');
+            const jsonError = document.getElementById('jsonError');
 
             // --- Modal Control ---
             const openModal = (modalElement) => {
@@ -193,6 +217,7 @@
                 btn.addEventListener('click', () => {
                     closeModal(memberModal);
                     closeModal(deleteConfirmModal);
+                    closeModal(jsonModal);
                 });
             });
 
@@ -314,7 +339,7 @@
             confirmDeleteBtn.addEventListener('click', async () => {
                 const id = confirmDeleteBtn.dataset.id;
                 try {
-                    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    const res = await fetch(`http://localhost:5000/api/ambassadors/${id}`, { method: 'DELETE' });
                     if (!res.ok) throw new Error('Failed to delete member');
                     closeModal(deleteConfirmModal);
                     fetchMembers();
@@ -332,6 +357,48 @@
                     member.university.toLowerCase().includes(searchTerm)
                 );
                 renderMembers(filteredMembers);
+            });
+
+            // --- Add via JSON Modal Logic ---
+            addJsonBtn.addEventListener('click', () => {
+                jsonInput.value = '';
+                jsonError.textContent = '';
+                openModal(jsonModal);
+            });
+
+            jsonForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                jsonError.textContent = '';
+                let data;
+                try {
+                    data = JSON.parse(jsonInput.value);
+                } catch (err) {
+                    jsonError.textContent = 'Invalid JSON.';
+                    return;
+                }
+                // Accept both array and single object
+                const members = Array.isArray(data) ? data : [data];
+                let success = 0, fail = 0;
+                for (const member of members) {
+                    try {
+                        const res = await fetch('http://localhost:5000/api/ambassadors', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(member)
+                        });
+                        if (!res.ok) throw new Error('Failed');
+                        success++;
+                    } catch {
+                        fail++;
+                    }
+                }
+                if (success > 0) fetchMembers();
+                closeModal(jsonModal);
+                if (fail > 0) {
+                    alert(`${success} member(s) added. ${fail} failed.`);
+                } else {
+                    alert(`${success} member(s) added successfully!`);
+                }
             });
 
             // --- Initial Load ---
