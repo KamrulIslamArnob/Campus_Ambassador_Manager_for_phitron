@@ -25,35 +25,7 @@ exports.getAllAmbassadors = async (req, res) => {
   }
 };
 
-// GET /api/ambassadors/stats
-exports.getStats = async (req, res) => {
-  try {
-    const ambassadors = await Ambassador.find();
-    const total = ambassadors.length;
-    const active = ambassadors.filter(a => a.active).length; // assumes 'active' field
-    // Weekly score change: sum of score changes in last 7 days
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const weeklyScoreChange = ambassadors.reduce((sum, a) => {
-      if (a.updatedAt > oneWeekAgo) {
-        return sum + (a.score || 0);
-      }
-      return sum;
-    }, 0);
-    res.json({ total, active, weeklyScoreChange });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
-// GET /api/ambassadors/activity
-exports.getRecentActivity = async (req, res) => {
-  try {
-    const recent = await Ambassador.find().sort({ updatedAt: -1, createdAt: -1 }).limit(10);
-    res.json(recent);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 // GET /api/ambassadors/search?name=prefix
 exports.searchAmbassadorNames = async (req, res) => {
@@ -63,6 +35,7 @@ exports.searchAmbassadorNames = async (req, res) => {
   const matches = nameTrie.searchPrefix(name);
   res.json(matches);
 };
+
 
 // POST /api/ambassadors
 exports.createAmbassador = async (req, res) => {
