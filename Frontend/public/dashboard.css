@@ -1,0 +1,64 @@
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sidebar-link:hover, .sidebar-link.active {
+    background: rgba(79, 70, 229, 0.5);
+    color: #fff;
+}
+.sidebar-link svg {
+    transition: transform 0.2s;
+}
+.sidebar-link:hover svg {
+    transform: scale(1.1);
+}
+.modal {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.modal-content {
+    transition: transform 0.3s ease-in-out;
+}
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 12px 4px rgba(250, 204, 21, 0.4), 0 0 0 0 rgba(250, 204, 21, 0.2);
+    transform: scale(1.03);
+  }
+  50% {
+    box-shadow: 0 0 32px 8px rgba(250, 204, 21, 0.7), 0 0 0 8px rgba(250, 204, 21, 0.15);
+    transform: scale(1.08);
+  }
+}
+.btn-pulse {
+    animation: pulse-glow 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, #fde047 0%, #facc15 50%, #eab308 100%);
+    box-shadow: 0 0 16px 2px rgba(250, 204, 21, 0.3);
+    border: 2px solid #facc15;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.btn-pulse:hover {
+    background: linear-gradient(90deg, #facc15 0%, #fde047 100%);
+    box-shadow: 0 0 40px 8px rgba(250, 204, 21, 0.7), 0 0 0 8px rgba(250, 204, 21, 0.15);
+    transform: scale(1.12);
+    border-color: #fde047;
+}
+.autocomplete-list {
+    position: absolute;
+    z-index: 100;
+    background: #1e293b;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    width: 100%;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+}
+.autocomplete-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: #facc15;
+}
+.autocomplete-item:hover, .autocomplete-item.active {
+    background: #facc15;
+    color: #1e293b;
+} 
