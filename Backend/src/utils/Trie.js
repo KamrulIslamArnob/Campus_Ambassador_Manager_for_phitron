@@ -2,6 +2,7 @@ class TrieNode {
   constructor() {
     this.children = {};
     this.isEndOfWord = false;
+    this.originalWord = null;
   }
 }
 
@@ -19,6 +20,7 @@ class Trie {
       node = node.children[char];
     }
     node.isEndOfWord = true;
+    node.originalWord = word;
   }
 
   searchPrefix(prefix) {
@@ -29,14 +31,14 @@ class Trie {
       }
       node = node.children[char];
     }
-    return this._collectAllWords(node, prefix);
+    return this._collectAllWords(node);
   }
 
-  _collectAllWords(node, prefix) {
+  _collectAllWords(node) {
     let results = [];
-    if (node.isEndOfWord) results.push(prefix);
+    if (node.isEndOfWord && node.originalWord) results.push(node.originalWord);
     for (const char in node.children) {
-      results = results.concat(this._collectAllWords(node.children[char], prefix + char));
+      results = results.concat(this._collectAllWords(node.children[char]));
     }
     return results;
   }
