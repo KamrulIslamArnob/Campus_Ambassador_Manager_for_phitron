@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                DEFAULT: '#4f46e5',
+                hover: '#4338ca'
+              },
+              gold: {
+                light: '#fde047',
+                DEFAULT: '#facc15',
+                dark: '#eab308'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.5);
+            color: #fff;
+        }
+        .sidebar-link svg {
+            transition: transform 0.2s;
+        }
+        .sidebar-link:hover svg {
+            transform: scale(1.1);
+        }
+        .modal {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+        /* -- Improved Animation and Button Style -- */
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 12px 4px rgba(250, 204, 21, 0.4), 0 0 0 0 rgba(250, 204, 21, 0.2);
+            transform: scale(1.03);
+          }
+          50% {
+            box-shadow: 0 0 32px 8px rgba(250, 204, 21, 0.7), 0 0 0 8px rgba(250, 204, 21, 0.15);
+            transform: scale(1.08);
+          }
+        }
+        .btn-pulse {
+            animation: pulse-glow 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, #fde047 0%, #facc15 50%, #eab308 100%);
+            box-shadow: 0 0 16px 2px rgba(250, 204, 21, 0.3);
+            border: 2px solid #facc15;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+        .btn-pulse:hover {
+            background: linear-gradient(90deg, #facc15 0%, #fde047 100%);
+            box-shadow: 0 0 40px 8px rgba(250, 204, 21, 0.7), 0 0 0 8px rgba(250, 204, 21, 0.15);
+            transform: scale(1.12);
+            border-color: #fde047;
+        }
+        /* Autocomplete dropdown styles */
+        .autocomplete-list {
+            position: absolute;
+            z-index: 100;
+            background: #1e293b;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            width: 100%;
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 0.25rem;
+        }
+        .autocomplete-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: #facc15;
+        }
+        .autocomplete-item:hover, .autocomplete-item.active {
+            background: #facc15;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300 font-sans tracking-tight">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-slate-800/50 border-r border-slate-700/50 p-6 hidden lg:flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-primary-DEFAULT">
+                        <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm4.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 15a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4.5 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-9-4.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clip-rule="evenodd" />
+                    </svg>
+                    <h1 class="text-xl font-bold text-white tracking-wider">AdminPanel</h1>
+                </div>
+                <nav class="flex flex-col gap-2">
+                    <a href="dashboard.html" class="sidebar-link active flex items-center gap-4 p-3 rounded-lg text-gray-300 font-medium transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M10.5 4.5a3.75 3.75 0 00-3.75 3.75v10.5a3.75 3.75 0 003.75 3.75h3a3.75 3.75 0 003.75-3.75V8.25a3.75 3.75 0 00-3.75-3.75h-3zM10.5 9a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" /><path d="M4.5 4.5a3.75 3.75 0 00-3.75 3.75v10.5a3.75 3.75 0 003.75 3.75h3a.75.75 0 00.75-.75V8.25a.75.75 0 00-.75-.75h-3z" /></svg>
+                        Dashboard
+                    </a>
+                    <a href="members.html" class="sidebar-link flex items-center gap-4 p-3 rounded-lg text-gray-300 font-medium transition-all duration-200">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" /></svg>
+                        Manage Members
+                    </a>
+                </nav>
+            </div>
+            <a href="#" class="sidebar-link flex items-center gap-4 p-3 rounded-lg text-gray-300 font-medium transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm10.72 4.72a.75.75 0 011.06 0l3 3a.75.75 0 010 1.06l-3 3a.75.75 0 11-1.06-1.06l1.72-1.72H9a.75.75 0 010-1.5h10.94l-1.72-1.72a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg>
+                Logout
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <!-- Header -->
+                <header class="mb-8">
+                    <h1 class="text-3xl font-bold text-white">Admin Dashboard</h1>
+                    <p class="text-gray-400 mt-1">Welcome back, Admin. Here's what's happening today.</p>
+                </header>
+
+                <!-- Summary Widgets -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Total Members -->
+                    <div class="glass-card rounded-2xl p-6 flex items-center gap-6 transform hover:-translate-y-1 transition-transform duration-300">
+                        <div class="bg-primary-DEFAULT/20 p-4 rounded-full">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-primary-DEFAULT"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm font-medium">Total Members</p>
+                            <p class="text-3xl font-bold text-white">1,254</p>
+                        </div>
+                    </div>
+                    <!-- Running CA Batch -->
+                    <div class="glass-card rounded-2xl p-6 flex items-center gap-6 transform hover:-translate-y-1 transition-transform duration-300">
+                        <div class="bg-green-500/20 p-4 rounded-full">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-green-400"><path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zM5.25 6.75c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h13.5c.621 0 1.125-.504 1.125-1.125V7.875c0-.621-.504-1.125-1.125-1.125H5.25z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-sm font-medium">Running CA Batch</p>
+                            <p class="text-3xl font-bold text-white">CA_25</p>
+                        </div>
+                    </div>
+                    <!-- Update Score CTA -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-center items-center gap-4">
+                        <p class="text-lg font-semibold text-white">Update Scores</p>
+                        <button id="updateScoreBtn" class="btn-pulse text-slate-900 font-bold py-2 px-5 rounded-lg flex items-center gap-2">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12 5.25a.75.75 0 01.75.75v5.25H18a.75.75 0 010 1.5h-5.25V18a.75.75 0 01-1.5 0v-5.25H6a.75.75 0 010-1.5h5.25V6a.75.75 0 01.75-.75z" clip-rule="evenodd" /></svg>
+                            Update Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="glass-card rounded-2xl p-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Recent Activity</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center">
+                                    <img src="https://i.pravatar.cc/40?u=a" class="rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/40x40/334155/e2e8f0?text=A';">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-white">Alex Morgan joined the CA Batch '25.</p>
+                                    <p class="text-xs text-gray-400">2 minutes ago</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center">
+                                    <img src="https://i.pravatar.cc/40?u=b" class="rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/40x40/334155/e2e8f0?text=J';">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-white">Jordan Lee reached 5000 points.</p>
+                                    <p class="text-xs text-gray-400">1 hour ago</p>
+                                </div>
+                            </div>
+                             <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center">
+                                    <img src="https://i.pravatar.cc/40?u=c" class="rounded-full" onerror="this.onerror=null;this.src='https://placehold.co/40x40/334155/e2e8f0?text=T';">
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-white">Taylor Swift's profile was updated.</p>
+                                    <p class="text-xs text-gray-400">3 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Update Score Modal -->
+    <div id="updateScoreModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 opacity-0 pointer-events-none">
+        <div class="modal-content glass-card w-full max-w-md p-8 rounded-2xl transform scale-95">
+            <h2 class="text-2xl font-bold text-white mb-6">Update Ambassador Score</h2>
+            <form class="space-y-4">
+                <div>
+                    <label for="searchAmbassador" class="block text-sm font-medium text-gray-300 mb-1">Ambassador Name</label>
+                    <div style="position:relative;">
+                        <input type="text" id="searchAmbassador" autocomplete="off" placeholder="Search by name..." class="w-full bg-slate-800/60 rounded-md border-0 py-2.5 px-4 text-white focus:ring-2 focus:ring-primary-DEFAULT">
+                        <div id="autocompleteList" class="autocomplete-list hidden"></div>
+                    </div>
+                </div>
+                <div>
+                    <label for="scoreToAdd" class="block text-sm font-medium text-gray-300 mb-1">Marks to Add</label>
+                    <input type="number" id="scoreToAdd" placeholder="e.g., 50" class="w-full bg-slate-800/60 rounded-md border-0 py-2.5 px-4 text-white focus:ring-2 focus:ring-primary-DEFAULT">
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" id="closeUpdateModalBtn" class="px-6 py-2 rounded-lg text-white bg-slate-700 hover:bg-slate-600 transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg text-white bg-primary-DEFAULT hover:bg-primary-hover transition-colors">Add Score</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Modal Control ---
+        const updateScoreBtn = document.getElementById('updateScoreBtn');
+        const closeUpdateModalBtn = document.getElementById('closeUpdateModalBtn');
+        const updateScoreModal = document.getElementById('updateScoreModal');
+
+        function openModal() {
+            updateScoreModal.classList.remove('opacity-0', 'pointer-events-none');
+            updateScoreModal.querySelector('.modal-content').classList.remove('scale-95');
+            // Clear and focus search input
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+                // Fetch all names for initial suggestions
+                fetch('/api/ambassadors/search?name=')
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestions = data;
+                        showAutocomplete(suggestions);
+                    });
+            }
+        }
+
+        function closeModal() {
+            updateScoreModal.querySelector('.modal-content').classList.add('scale-95');
+            updateScoreModal.classList.add('opacity-0');
+            // Wait for transition to finish before disabling pointer events
+            setTimeout(() => {
+                updateScoreModal.classList.add('pointer-events-none');
+            }, 300);
+        }
+
+        let allAmbassadors = [];
+
+        if (updateScoreBtn) {
+            updateScoreBtn.addEventListener('click', function() {
+                // Fetch all ambassador info when opening the modal
+                fetch('/api/ambassadors/')
+                    .then(res => res.json())
+                    .then(data => {
+                        allAmbassadors = data;
+                        // You can use allAmbassadors for further logic (e.g., show in modal, update scores, etc.)
+                        console.log('All Ambassadors:', allAmbassadors);
+                    });
+                openModal();
+            });
+        }
+        if (closeUpdateModalBtn) {
+            closeUpdateModalBtn.addEventListener('click', closeModal);
+        }
+
+        // Close modal if backdrop is clicked
+        if (updateScoreModal) {
+            updateScoreModal.addEventListener('click', (e) => {
+                if (e.target === updateScoreModal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // --- Autocomplete for Ambassador Name ---
+        const searchInput = document.getElementById('searchAmbassador');
+        const autocompleteList = document.getElementById('autocompleteList');
+        let debounceTimeout;
+        let activeIndex = -1;
+        let suggestions = [];
+
+        function clearAutocomplete() {
+            autocompleteList.innerHTML = '';
+            autocompleteList.classList.add('hidden');
+            activeIndex = -1;
+            suggestions = [];
+        }
+
+        function showAutocomplete(items) {
+            if (!items.length) {
+                clearAutocomplete();
+                return;
+            }
+            autocompleteList.innerHTML = items.map((name, idx) =>
+                `<div class="autocomplete-item${idx === activeIndex ? ' active' : ''}" data-index="${idx}">${name}</div>`
+            ).join('');
+            autocompleteList.classList.remove('hidden');
+        }
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            clearAutocomplete();
+            if (!query) return;
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                fetch(`/api/ambassadors/search?name=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        suggestions = data;
+                        showAutocomplete(suggestions);
+                    });
+            }, 200);
+        });
+
+        // Keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            if (!suggestions.length) return;
+            if (e.key === 'ArrowDown') {
+                activeIndex = (activeIndex + 1) % suggestions.length;
+                showAutocomplete(suggestions);
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+                activeIndex = (activeIndex - 1 + suggestions.length) % suggestions.length;
+                showAutocomplete(suggestions);
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && activeIndex < suggestions.length) {
+                    searchInput.value = suggestions[activeIndex];
+                    clearAutocomplete();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Click selection
+        autocompleteList.addEventListener('mousedown', function(e) {
+            if (e.target.classList.contains('autocomplete-item')) {
+                const idx = +e.target.getAttribute('data-index');
+                searchInput.value = suggestions[idx];
+                clearAutocomplete();
+            }
+        });
+
+        // Hide autocomplete on blur
+        searchInput.addEventListener('blur', function() {
+            setTimeout(clearAutocomplete, 150);
+        });
+    </script>
+
+</body>
+</html>
